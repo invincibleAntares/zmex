@@ -13,7 +13,7 @@ export async function GET(
   { params }: { params: Promise<{ accountNumber: string }> },
 ) {
   try {
-    await getAuthenticatedUserId();
+    const userId = await getAuthenticatedUserId();
 
     const { accountNumber: rawAccountNumber } = await params;
 
@@ -38,8 +38,8 @@ export async function GET(
       );
     }
 
-    const recipient = await lookupBeneficiary(parsed.data.accountNumber);
-    return successResponse({ recipient });
+    const recipient = await lookupBeneficiary(parsed.data.accountNumber, userId);
+    return successResponse(recipient);
   } catch (error) {
     return errorResponse(error);
   }

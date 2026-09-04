@@ -62,7 +62,15 @@ export async function executeAtomicDeposit(params: DepositRepoParams) {
       `,
     );
 
-    if (lockedRows.rowCount !== 1) {
+    const rows = Array.isArray(lockedRows)
+      ? lockedRows
+      : ((lockedRows as unknown as { rows?: unknown[] }).rows ?? []);
+    const rowCount =
+      rows.length > 0
+        ? rows.length
+        : (lockedRows as unknown as { rowCount?: number }).rowCount ?? 0;
+
+    if (rowCount !== 1) {
       throw new AppError("Account not found", 404, "ACCOUNT_NOT_FOUND");
     }
 

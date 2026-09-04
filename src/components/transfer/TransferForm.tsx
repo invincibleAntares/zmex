@@ -11,9 +11,11 @@ import type { PublicBeneficiary } from "@/modules/accounts/account.types";
 
 export function TransferForm({
   availableBalancePaise,
+  ownAccountNumber,
   onSuccess,
 }: {
   availableBalancePaise: number;
+  ownAccountNumber?: string;
   onSuccess: () => Promise<void>;
 }) {
   const router = useRouter();
@@ -39,9 +41,18 @@ export function TransferForm({
 
   // Recipient Lookup on blur
   const handleVerifyRecipient = async () => {
-    if (!accountNumber.trim()) return;
+    const trimmedNumber = accountNumber.trim();
+    if (!trimmedNumber) return;
+
+    // Reject self-transfer immediately
+    if (ownAccountNumber && trimmedNumber.toUpperCase() === ownAccountNumber.toUpperCase()) {
+      setRecipient(null);
+      setLookupError("You cannot transfer money to your own account.");
+      return;
+    }
+
     // Skip if already verified the exact same number
-    if (recipient && recipient.accountNumber === accountNumber) return;
+    if (recipient && recipient.accountNumber === trimmedNumber) return;
 
     // Reset previous state
     setRecipient(null);
@@ -50,21 +61,23 @@ export function TransferForm({
 
     try {
       // Basic format check before sending network request
-      if (!/^ZM\d{12}$/i.test(accountNumber.trim())) {
+      if (!/^ZM\d{12}$/i.test(trimmedNumber)) {
         setLookupError("Invalid account format. Must be ZM + 12 digits.");
         return;
       }
-      const data = await apiClient<PublicBeneficiary>(`/api/accounts/lookup/${accountNumber.trim()}`);
+      const data = await apiClient<PublicBeneficiary>(`/api/accounts/lookup/${trimmedNumber}`);
       setRecipient(data);
     } catch (error) {
       if (error instanceof ApiClientError) {
-        if (error.status === 404) {
-          setLookupError("Account not found");
+        if (error.code === "SELF_TRANSFER_NOT_ALLOWED") {
+          setLookupError("You cannot transfer money to your own account.");
+        } else if (error.status === 404 || error.code === "RECIPIENT_NOT_FOUND") {
+          setLookupError("Account not found.");
         } else {
-          setLookupError(error.message || "Could not verify account");
+          setLookupError(error.message || "Could not verify account.");
         }
       } else {
-        setLookupError("Could not verify account");
+        setLookupError("Could not verify account.");
       }
     } finally {
       setIsVerifying(false);
@@ -154,7 +167,7 @@ export function TransferForm({
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h3 className="text-2xl font-bold mb-2">Transfer complete</h3>
+        <h3 className="text-2xl font-bold mb-2 text-black">Transfer complete</h3>
         <p className="text-neutral-500 mb-8">
           {formatPaiseToRupees(successData.transfer.amountPaise)} sent to {successData.transfer.counterparty?.name}.
         </p>

@@ -67,6 +67,7 @@ export default function TransferPage() {
         <div>
           <TransferForm 
             availableBalancePaise={data.account.balancePaise} 
+            ownAccountNumber={data.account.accountNumber}
             onSuccess={fetchTransferData} 
           />
         </div>

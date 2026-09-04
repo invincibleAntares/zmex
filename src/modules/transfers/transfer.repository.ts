@@ -69,7 +69,15 @@ export async function executeAtomicTransfer(params: TransferRepoParams) {
       `,
     );
 
-    if (lockedRows.rowCount !== 2) {
+    const rows = Array.isArray(lockedRows)
+      ? lockedRows
+      : ((lockedRows as unknown as { rows?: unknown[] }).rows ?? []);
+    const rowCount =
+      rows.length > 0
+        ? rows.length
+        : (lockedRows as unknown as { rowCount?: number }).rowCount ?? 0;
+
+    if (rowCount !== 2) {
       // Very rare unless an account was hard-deleted mid-flight.
       throw new AppError(
         "One or both accounts could not be verified during transfer",

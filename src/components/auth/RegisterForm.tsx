@@ -185,7 +185,7 @@ export function RegisterForm() {
               name="phone"
               type="tel"
               inputMode="numeric"
-              placeholder="10-15 digits"
+              placeholder="123-456-7890"
               value={formData.phone}
               onChange={handleInputChange}
               error={errors.phone}
