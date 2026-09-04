@@ -13,6 +13,8 @@ export interface ApiSuccessResponse<T> {
 export interface ApiErrorBody {
   code: string;
   message: string;
+  /** Optional field-level details for validation errors. Never contains internals. */
+  details?: Record<string, string[]>;
 }
 
 export interface ApiErrorResponse {
@@ -41,7 +43,7 @@ export function successResponse<T>(
 /**
  * Return a standard JSON error response.
  *
- * - `AppError` → use its statusCode, code, and message directly.
+ * - `AppError` → use its statusCode, code, message, and optional details.
  * - Unknown error → log server-side, return 500 with a generic message.
  *   Stack traces, SQL, and secrets are never sent to the client.
  *
@@ -52,14 +54,17 @@ export function errorResponse(
   error: unknown,
 ): NextResponse<ApiErrorResponse> {
   if (error instanceof AppError) {
+    const body: ApiErrorBody = {
+      code: error.code,
+      message: error.message,
+    };
+
+    if (error.details) {
+      body.details = error.details;
+    }
+
     return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: error.code,
-          message: error.message,
-        },
-      },
+      { success: false, error: body },
       { status: error.statusCode },
     );
   }

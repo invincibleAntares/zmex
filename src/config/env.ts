@@ -4,6 +4,10 @@ const envSchema = z.object({
   DATABASE_URL: z
     .string({ error: "DATABASE_URL is required and must be a non-empty string" })
     .min(1, "DATABASE_URL must not be empty"),
+
+  AUTH_SECRET: z
+    .string({ error: "AUTH_SECRET is required" })
+    .min(32, "AUTH_SECRET must be at least 32 characters for security"),
 });
 
 function validateEnv() {
