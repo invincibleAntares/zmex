@@ -5,18 +5,19 @@ import type { TransactionHistoryItem } from "@/modules/transactions/transaction.
 export function TransactionItem({ tx }: { tx: TransactionHistoryItem }) {
   const isCredit = tx.direction === "credit";
 
-  // Format Date (e.g. 04 Sep 2026 · 3:42 PM)
+  // Deterministic Date formatting for Next.js SSR/Client hydration consistency
   const dateObj = new Date(tx.createdAt);
-  const formattedDate = dateObj.toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-  const formattedTime = dateObj.toLocaleTimeString("en-IN", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+  const day = String(dateObj.getDate()).padStart(2, "0");
+  const month = MONTHS[dateObj.getMonth()];
+  const year = dateObj.getFullYear();
+  let hours = dateObj.getHours();
+  const minutes = String(dateObj.getMinutes()).padStart(2, "0");
+  const ampm = hours >= 12 ? "pm" : "am";
+  hours = hours % 12 || 12;
+
+  const formattedDate = `${day} ${month} ${year}`;
+  const formattedTime = `${hours}:${minutes} ${ampm}`;
 
   const isOpening = tx.type === "opening_balance";
   const isDeposit = tx.type === "deposit";
@@ -69,7 +70,7 @@ export function TransactionItem({ tx }: { tx: TransactionHistoryItem }) {
           <div className="flex items-center gap-1.5 text-xs text-neutral-500 mt-0.5 whitespace-nowrap overflow-hidden">
             <span className="shrink-0">{subTitle}</span>
             <span className="shrink-0">·</span>
-            <span className="truncate">
+            <span className="truncate" suppressHydrationWarning>
               {formattedDate} {formattedTime}
             </span>
           </div>
