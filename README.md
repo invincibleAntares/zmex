@@ -108,7 +108,12 @@ src/
 │       ├── accounts/
 │       │   └── lookup/
 │       ├── auth/
+│       │   ├── login/
+│       │   ├── logout/
+│       │   ├── me/
+│       │   └── register/
 │       ├── deposits/
+│       ├── health/
 │       ├── transactions/
 │       └── transfers/
 │
@@ -120,21 +125,29 @@ src/
 │   ├── transfer/
 │   └── ui/
 │
-├── modules/
-│   ├── accounts/
-│   ├── auth/
-│   ├── deposits/
-│   ├── transactions/
-│   └── transfers/
+├── config/
+│   └── env.ts
 │
 ├── db/
 │   ├── schema/
+│   │   ├── accounts.ts
+│   │   ├── index.ts
+│   │   ├── ledger-entries.ts
+│   │   ├── transactions.ts
+│   │   └── users.ts
 │   └── index.ts
 │
 ├── lib/
 │   ├── auth/
 │   ├── client/
 │   └── redis.ts
+│
+├── modules/
+│   ├── accounts/
+│   ├── auth/
+│   ├── deposits/
+│   ├── transactions/
+│   └── transfers/
 │
 └── shared/
     ├── errors/
@@ -195,6 +208,7 @@ Open `http://localhost:3000` in your browser.
 
 | Method | Endpoint | Description |
 |---|---|---|
+| `GET` | `/api/health` | Health check endpoint |
 | `POST` | `/api/auth/register` | Register user & create ZMEX account |
 | `POST` | `/api/auth/login` | Authenticate user & set session cookie |
 | `POST` | `/api/auth/logout` | Clear session cookie |
