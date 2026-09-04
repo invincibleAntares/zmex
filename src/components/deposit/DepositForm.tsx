@@ -17,17 +17,17 @@ const PAYMENT_OPTIONS: {
   {
     id: "upi",
     title: "UPI",
-    description: "Add money using a demo UPI payment",
+    description: "Add money using a  UPI payment",
   },
   {
     id: "debit_card",
     title: "Debit Card",
-    description: "Add money using a demo debit card",
+    description: "Add money using a  debit card",
   },
   {
     id: "credit_card",
     title: "Credit Card",
-    description: "Add money using a demo credit card",
+    description: "Add money using a  credit card",
   },
 ];
 
@@ -230,9 +230,7 @@ export function DepositForm({
               }
               autoComplete="off"
             />
-            <p className="text-xs text-neutral-500">
-              Demo input only — no real payment authorization required.
-            </p>
+            
           </div>
         )}
 
@@ -240,12 +238,10 @@ export function DepositForm({
           <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-200">
             <p className="text-sm font-medium text-neutral-900">
               {paymentMethod === "debit_card"
-                ? "Demo Debit Card"
-                : "Demo Credit Card"}
+                ? "Debit Card"
+                : "Credit Card"}
             </p>
-            <p className="text-xs text-neutral-500 mt-1">
-              No real card details are required for this demo.
-            </p>
+            
           </div>
         )}
 

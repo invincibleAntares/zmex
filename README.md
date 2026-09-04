@@ -1,7 +1,9 @@
 # ZMEX — Banking Money Transfer System
 
 A full-stack banking application that allows users to create an account, manage their balance, add demo funds, transfer money securely between ZMEX accounts, and track complete transaction history.
-**Live:** `https://zmex.vercel.app/`
+
+> 🚀 **Live Demo:** [https://zmex.vercel.app/](https://zmex.vercel.app/)
+
 ---
 
 
@@ -35,7 +37,7 @@ A full-stack banking application that allows users to create an account, manage 
 - Automatic ZMEX account creation (`ZM` + 12 digits)
 - Optional opening balance during registration
 - Real-time account balance & account number display
-- Demo Add Money flow (UPI, Debit Card, Credit Card)
+- Add Money flow (UPI, Debit Card, Credit Card)
 - Beneficiary account lookup & instant identity verification
 - Secure money transfers between ZMEX accounts
 - Multi-tier validation blocking transfers exceeding available balance
@@ -151,7 +153,7 @@ src/
 
 ### 1. Clone the repository
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/invincibleAntares/zmex
 cd zmex
 ```
 
@@ -161,7 +163,7 @@ npm install
 ```
 
 ### 3. Configure environment variables
-Create `.env.local` in the root directory:
+Create `.env` in the root directory:
 
 ```env
 DATABASE_URL="postgresql://user:password@ep-sample.us-east-2.aws.neon.tech/zmex?sslmode=require"
@@ -201,7 +203,7 @@ Open `http://localhost:3000` in your browser.
 | `GET` | `/api/accounts/lookup/:accountNumber` | Verify beneficiary account number |
 | `GET` | `/api/transactions` | Get paginated transaction history |
 | `POST` | `/api/transfers` | Transfer money between accounts |
-| `POST` | `/api/deposits` | Add demo funds (UPI / Debit / Credit) |
+| `POST` | `/api/deposits` | Add funds (UPI / Debit / Credit) |
 
 ### Transfer Request Example
 
@@ -217,7 +219,7 @@ Idempotency-Key: 550e8400-e29b-41d4-a716-446655440000
 }
 ```
 
-### Demo Deposit Request Example
+###  Deposit Request Example
 
 ```http
 POST /api/deposits
