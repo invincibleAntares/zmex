@@ -1,14 +1,31 @@
 import { z } from "zod";
 
-const envSchema = z.object({
-  DATABASE_URL: z
-    .string({ error: "DATABASE_URL is required and must be a non-empty string" })
-    .min(1, "DATABASE_URL must not be empty"),
+const envSchema = z
+  .object({
+    DATABASE_URL: z
+      .string({ error: "DATABASE_URL is required and must be a non-empty string" })
+      .min(1, "DATABASE_URL must not be empty"),
 
-  AUTH_SECRET: z
-    .string({ error: "AUTH_SECRET is required" })
-    .min(32, "AUTH_SECRET must be at least 32 characters for security"),
-});
+    AUTH_SECRET: z
+      .string({ error: "AUTH_SECRET is required" })
+      .min(32, "AUTH_SECRET must be at least 32 characters for security"),
+
+    UPSTASH_REDIS_REST_URL: z.string().optional(),
+    UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    const hasUrl = !!data.UPSTASH_REDIS_REST_URL;
+    const hasToken = !!data.UPSTASH_REDIS_REST_TOKEN;
+
+    if (hasUrl !== hasToken) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["UPSTASH_REDIS_REST_URL"],
+        message:
+          "Both UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN must be provided together, or both omitted.",
+      });
+    }
+  });
 
 function validateEnv() {
   const result = envSchema.safeParse(process.env);

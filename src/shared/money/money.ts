@@ -29,3 +29,8 @@ export function rupeesToPaise(rupees: string): number {
  * Used by both the Zod schema (validation) and the service (double-check).
  */
 export const MAX_INITIAL_DEPOSIT_PAISE = 100_000_000;
+
+export const MIN_DEPOSIT_PAISE = 500 * 100;
+
+/** Maximum allowed single transfer: ₹10,00,000 */
+export const MAX_TRANSFER_PAISE = 1000000 * 100;

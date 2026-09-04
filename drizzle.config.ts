@@ -1,8 +1,8 @@
 import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
 
-// Load .env.local for local Drizzle CLI usage — matches Next.js convention.
-config({ path: ".env.local" });
+// Load .env for local Drizzle CLI usage.
+config({ path: ".env" });
 
 if (!process.env.DATABASE_URL) {
   throw new Error(
