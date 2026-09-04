@@ -1,5 +1,8 @@
-import "dotenv/config";
+import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
+
+// Load .env.local for local Drizzle CLI usage — matches Next.js convention.
+config({ path: ".env.local" });
 
 if (!process.env.DATABASE_URL) {
   throw new Error(
@@ -11,7 +14,7 @@ if (!process.env.DATABASE_URL) {
 
 export default defineConfig({
   dialect: "postgresql",
-  schema: "./src/db/schema/**",
+  schema: "./src/db/schema/*.ts",
   out: "./drizzle",
   dbCredentials: {
     url: process.env.DATABASE_URL,

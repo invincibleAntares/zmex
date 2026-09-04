@@ -1,7 +1,8 @@
-import { neon, neonConfig, Pool } from "@neondatabase/serverless";
+import { Pool, neonConfig } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import ws from "ws";
 import { env } from "@/config/env";
+import * as schema from "@/db/schema";
 
 // Configure Neon to use the Node.js `ws` WebSocket implementation.
 // Required when running in the Node.js runtime (not Edge).
@@ -19,7 +20,6 @@ neonConfig.webSocketConstructor = ws;
 // ---------------------------------------------------------------------------
 
 declare global {
-  // eslint-disable-next-line no-var
   var __neonPool: Pool | undefined;
 }
 
@@ -32,4 +32,4 @@ const pool: Pool =
     ? createPool()
     : (globalThis.__neonPool ??= createPool());
 
-export const db = drizzle(pool);
+export const db = drizzle(pool, { schema });
