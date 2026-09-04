@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AccountCard } from "@/components/banking/AccountCard";
 import { RecentTransactions } from "@/components/banking/RecentTransactions";
 import { Button } from "@/components/ui/Button";
-import { LoadingState } from "@/components/ui/LoadingState";
+import { Skeleton, AccountCardSkeleton, RecentTransactionsSkeleton } from "@/components/ui/Skeleton";
 import { apiClient } from "@/lib/client/api-client";
 import type { CurrentAccount } from "@/modules/accounts/account.types";
 import type { TransactionHistoryItem, TransactionHistoryResult } from "@/modules/transactions/transaction.types";
@@ -64,7 +64,25 @@ export default function DashboardPage() {
   }, []);
 
   if (isLoading) {
-    return <LoadingState text="Loading dashboard..." />;
+    return (
+      <div className="space-y-8">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-64" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <AccountCardSkeleton />
+          </div>
+          <div className="lg:col-span-1">
+            <Skeleton className="h-full min-h-[220px] rounded-3xl" />
+          </div>
+        </div>
+        <div>
+          <RecentTransactionsSkeleton />
+        </div>
+      </div>
+    );
   }
 
   if (error || !data) {

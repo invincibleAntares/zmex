@@ -6,11 +6,13 @@ import Link from "next/link";
 import { apiClient } from "@/lib/client/api-client";
 import { LoadingState } from "../ui/LoadingState";
 
+let cachedAuthUser: { id: string; fullName: string; email: string } | null = null;
+
 export function BankingShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [userName, setUserName] = useState<string>("");
+  const [isCheckingAuth, setIsCheckingAuth] = useState(!cachedAuthUser);
+  const [userName, setUserName] = useState<string>(cachedAuthUser?.fullName || "");
 
   useEffect(() => {
     let isMounted = true;
@@ -18,12 +20,13 @@ export function BankingShell({ children }: { children: React.ReactNode }) {
     async function checkAuth() {
       try {
         const user = await apiClient<{ id: string; fullName: string; email: string }>("/api/auth/me");
+        cachedAuthUser = user;
         if (isMounted) {
           setUserName(user.fullName);
           setIsCheckingAuth(false);
         }
       } catch {
-        // If 401 or any error, redirect to login
+        cachedAuthUser = null;
         if (isMounted) {
           router.replace("/login");
         }
@@ -39,10 +42,12 @@ export function BankingShell({ children }: { children: React.ReactNode }) {
 
   const handleLogout = async () => {
     try {
+      cachedAuthUser = null;
       await apiClient("/api/auth/logout", { method: "POST" });
     } catch {
       // Ignore errors on logout
     } finally {
+      cachedAuthUser = null;
       router.push("/login");
     }
   };

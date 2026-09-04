@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from "react";
 import { TransactionItem } from "../banking/TransactionItem";
 import { EmptyState } from "../ui/EmptyState";
-import { LoadingState } from "../ui/LoadingState";
+import { Skeleton, RecentTransactionsSkeleton } from "../ui/Skeleton";
 import { Button } from "../ui/Button";
 import { apiClient } from "@/lib/client/api-client";
+import { bankingCache } from "@/lib/client/banking-cache";
 import type { TransactionHistoryItem, TransactionHistoryResult } from "@/modules/transactions/transaction.types";
 
 export function TransactionList() {
@@ -58,14 +59,14 @@ export function TransactionList() {
       setHasMore(data.pagination.hasMore);
       setPage(nextPage);
     } catch {
-      // Ignore load more errors for simple UX, normally show a small toast
+      // Ignore load more errors for simple UX
     } finally {
       setIsFetchingMore(false);
     }
   };
 
   if (isLoading) {
-    return <LoadingState text="Loading transactions..." />;
+    return <RecentTransactionsSkeleton />;
   }
 
   if (error) {

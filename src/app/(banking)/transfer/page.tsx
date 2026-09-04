@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { TransferForm } from "@/components/transfer/TransferForm";
 import { RecentTransactions } from "@/components/banking/RecentTransactions";
 import { formatPaiseToRupees } from "@/shared/money/money-formatter";
-import { LoadingState } from "@/components/ui/LoadingState";
+import { Skeleton, RecentTransactionsSkeleton } from "@/components/ui/Skeleton";
 import { apiClient } from "@/lib/client/api-client";
 import type { CurrentAccount } from "@/modules/accounts/account.types";
 import type { TransactionHistoryItem, TransactionHistoryResult } from "@/modules/transactions/transaction.types";
@@ -32,7 +32,7 @@ export default function TransferPage() {
         transactions: transactionsData.transactions,
       });
     } catch {
-      // Handle silently for simple UI flow, real app would show a banner
+      // Handle silently for simple UI flow
     }
   }, []);
 
@@ -49,7 +49,18 @@ export default function TransferPage() {
   }, [fetchTransferData]);
 
   if (isLoading || !data) {
-    return <LoadingState text="Loading transfer tools..." />;
+    return (
+      <div className="space-y-8">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-64" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          <Skeleton className="h-96 rounded-3xl" />
+          <RecentTransactionsSkeleton />
+        </div>
+      </div>
+    );
   }
 
   return (

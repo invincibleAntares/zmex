@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { DepositForm } from "@/components/deposit/DepositForm";
 import { RecentTransactions } from "@/components/banking/RecentTransactions";
 import { formatPaiseToRupees } from "@/shared/money/money-formatter";
-import { LoadingState } from "@/components/ui/LoadingState";
+import { Skeleton, RecentTransactionsSkeleton } from "@/components/ui/Skeleton";
 import { apiClient } from "@/lib/client/api-client";
 import type { CurrentAccount } from "@/modules/accounts/account.types";
 import type { TransactionHistoryItem, TransactionHistoryResult } from "@/modules/transactions/transaction.types";
@@ -49,7 +49,18 @@ export default function DepositPage() {
   }, [fetchDepositData]);
 
   if (isLoading || !data) {
-    return <LoadingState text="Loading deposit tools..." />;
+    return (
+      <div className="space-y-8">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-64" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          <Skeleton className="h-96 rounded-3xl" />
+          <RecentTransactionsSkeleton />
+        </div>
+      </div>
+    );
   }
 
   return (
