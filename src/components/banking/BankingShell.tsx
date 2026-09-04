@@ -22,7 +22,7 @@ export function BankingShell({ children }: { children: React.ReactNode }) {
           setUserName(user.fullName);
           setIsCheckingAuth(false);
         }
-      } catch (error: unknown) {
+      } catch {
         // If 401 or any error, redirect to login
         if (isMounted) {
           router.replace("/login");
@@ -57,6 +57,7 @@ export function BankingShell({ children }: { children: React.ReactNode }) {
 
   const navLinks = [
     { name: "Dashboard", href: "/dashboard" },
+    { name: "Add Money", href: "/deposit" },
     { name: "Transfer", href: "/transfer" },
     { name: "Transactions", href: "/transactions" },
   ];
@@ -67,7 +68,7 @@ export function BankingShell({ children }: { children: React.ReactNode }) {
       <header className="bg-white border-b border-neutral-200 sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <h1 className="text-xl font-bold tracking-tight">ZMEX.</h1>
+            <h1 className="text-xl font-bold text-black tracking-tight">ZMEX.</h1>
             
             {/* Desktop Nav */}
             <nav className="hidden md:flex gap-6">

@@ -48,7 +48,7 @@ export const ledgerEntries = pgTable(
 
     description: varchar("description", { length: 255 }),
 
-    // Ledger entries are immutable financial records — no updatedAt.
+    // Ledger entries are immutable financial records - no updatedAt.
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

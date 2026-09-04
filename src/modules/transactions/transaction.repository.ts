@@ -2,6 +2,7 @@ import { eq, desc, count } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { ledgerEntries, transactions, accounts, users } from "@/db/schema";
+import type { DepositPaymentMethod } from "@/db/schema";
 import type { TransactionHistoryItem } from "./transaction.types";
 
 // ---------------------------------------------------------------------------
@@ -29,11 +30,12 @@ interface HistoryRow {
   ledgerCreatedAt: Date;
   // Transaction fields
   txId: string;
-  txType: "opening_balance" | "transfer";
+  txType: "opening_balance" | "transfer" | "deposit";
   txAmountPaise: number;
+  txPaymentMethod: DepositPaymentMethod | null;
   txNote: string | null;
   txCreatedAt: Date;
-  // Sender side (nullable — opening_balance has no sender)
+  // Sender side (nullable — opening_balance and deposit have no sender)
   senderAccountNumber: string | null;
   senderName: string | null;
   // Recipient side (always present)
@@ -51,7 +53,7 @@ interface HistoryRow {
  * Single query — no N+1. Joins:
  *   ledger_entries → transactions → sender account+user → recipient account+user
  *
- * Left joins on sender side because opening_balance has no sender account.
+ * Left joins on sender side because opening_balance and deposit have no sender account.
  *
  * Ordering: created_at DESC, ledger entry id DESC (deterministic for ties).
  *
@@ -74,6 +76,7 @@ export async function findAccountHistory(
       txId: transactions.id,
       txType: transactions.type,
       txAmountPaise: transactions.amountPaise,
+      txPaymentMethod: transactions.paymentMethod,
       txNote: transactions.note,
       txCreatedAt: transactions.createdAt,
 
@@ -85,7 +88,7 @@ export async function findAccountHistory(
     })
     .from(ledgerEntries)
     .innerJoin(transactions, eq(ledgerEntries.transactionId, transactions.id))
-    // Sender side — left join because opening_balance has senderAccountId = NULL.
+    // Sender side — left join because opening_balance & deposit have senderAccountId = NULL.
     .leftJoin(senderAccount, eq(transactions.senderAccountId, senderAccount.id))
     .leftJoin(senderUser, eq(senderAccount.userId, senderUser.id))
     // Recipient side — always present per schema constraint.
@@ -128,6 +131,7 @@ export async function countAccountHistory(accountId: string): Promise<number> {
  *
  * Counterparty resolution:
  *   - opening_balance → null (no internal sender is modelled)
+ *   - deposit         → null (payment gateway source, counterparty is null)
  *   - transfer debit  → the recipient (money left this account)
  *   - transfer credit → the sender (money arrived from them)
  */
@@ -143,20 +147,19 @@ function mapHistoryRow(row: HistoryRow): TransactionHistoryItem {
       };
     } else {
       // Money arrived — counterparty is the sender.
-      // senderName/senderAccountNumber are non-null for transfers (DB constraint).
       counterparty = {
         name: row.senderName ?? "",
         accountNumber: row.senderAccountNumber ?? "",
       };
     }
   }
-  // opening_balance: counterparty remains null — correct per spec.
 
   return {
     id: row.txId,
     type: row.txType,
     direction: row.entryType,
     amountPaise: row.txAmountPaise,
+    paymentMethod: row.txPaymentMethod ?? null,
     note: row.txNote,
     createdAt: row.ledgerCreatedAt,
     counterparty,

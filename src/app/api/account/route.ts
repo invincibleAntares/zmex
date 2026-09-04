@@ -9,7 +9,7 @@ export async function GET() {
   try {
     const userId = await getAuthenticatedUserId();
     const account = await getCurrentAccount(userId);
-    return successResponse({ account });
+    return successResponse(account);
   } catch (error) {
     return errorResponse(error);
   }

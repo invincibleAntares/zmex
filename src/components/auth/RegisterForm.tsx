@@ -24,7 +24,12 @@ const step2Schema = z.object({
   initialDeposit: z
     .string()
     .trim()
-    .regex(/^(0|[1-9]\d*)(\.\d{1,2})?$/, "Enter a valid amount (e.g. 0 or 1000.50)"),
+    .optional()
+    .transform((val) => (!val || val === "" ? "0" : val))
+    .refine(
+      (val) => /^(0|[1-9]\d*)(\.\d{1,2})?$/.test(val),
+      "Enter a valid amount (e.g. 0 or 1000.50)",
+    ),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
@@ -108,7 +113,10 @@ export function RegisterForm() {
     try {
       await apiClient("/api/auth/register", {
         method: "POST",
-        data: formData,
+        data: {
+          ...formData,
+          initialDeposit: parsed.data.initialDeposit,
+        },
       });
       
       // Success! HttpOnly cookie is set. Redirect to dashboard.

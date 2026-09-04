@@ -10,8 +10,14 @@ export type { Account, NewAccount } from "./accounts";
 export {
   transactions,
   transactionTypeEnum,
+  depositPaymentMethodEnum,
 } from "./transactions";
-export type { Transaction, NewTransaction, TransactionType } from "./transactions";
+export type {
+  Transaction,
+  NewTransaction,
+  TransactionType,
+  DepositPaymentMethod,
+} from "./transactions";
 
 export {
   ledgerEntries,

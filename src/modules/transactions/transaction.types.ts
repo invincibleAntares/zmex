@@ -1,3 +1,5 @@
+import type { DepositPaymentMethod } from "@/db/schema";
+
 // ---------------------------------------------------------------------------
 // Transaction history public types
 // ---------------------------------------------------------------------------
@@ -20,12 +22,13 @@ export interface TransactionCounterparty {
  */
 export interface TransactionHistoryItem {
   id: string;
-  type: "opening_balance" | "transfer";
+  type: "opening_balance" | "transfer" | "deposit";
   direction: TransactionDirection;
   amountPaise: number;
+  paymentMethod?: DepositPaymentMethod | null;
   note: string | null;
   createdAt: Date;
-  /** null for opening_balance — no internal ZMEX sender is modelled. */
+  /** null for opening_balance and deposit — no internal ZMEX counterparty is modelled. */
   counterparty: TransactionCounterparty | null;
 }
 

@@ -14,14 +14,19 @@
  * rupeesToPaise("0")       → 0
  */
 export function rupeesToPaise(rupees: string): number {
-  const [wholePart, fracPart = ""] = rupees.split(".");
+  if (!rupees || typeof rupees !== "string" || rupees.trim() === "") {
+    return 0;
+  }
+  const clean = rupees.trim();
+  const [wholePart, fracPart = ""] = clean.split(".");
 
-  const whole = parseInt(wholePart || "0", 10) * 100;
+  const whole = (parseInt(wholePart || "0", 10) || 0) * 100;
 
-  // Pad to 2 digits (e.g. "5" → "50") or truncate if somehow longer.
-  const fraction = parseInt(fracPart.padEnd(2, "0").slice(0, 2), 10);
+  // Pad to 2 digits (e.g. "5" -> "50") or truncate if longer.
+  const fraction = parseInt(fracPart.padEnd(2, "0").slice(0, 2), 10) || 0;
 
-  return whole + fraction;
+  const result = whole + fraction;
+  return isNaN(result) ? 0 : result;
 }
 
 /**

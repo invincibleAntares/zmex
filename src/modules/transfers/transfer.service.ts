@@ -149,7 +149,7 @@ export async function executeTransfer(
 function buildHistoryItem(
   transaction: {
     id: string;
-    type: "opening_balance" | "transfer";
+    type: "opening_balance" | "transfer" | "deposit";
     amountPaise: number;
     note: string | null;
     createdAt: Date;

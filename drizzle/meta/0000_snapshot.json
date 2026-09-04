@@ -1,5 +1,5 @@
 {
-  "id": "3d3994af-588b-4bf9-8195-bf4d0a57c4b5",
+  "id": "63b257e3-1852-4b0a-ab7a-df4cfcdb0eec",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -281,6 +281,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "payment_method": {
+          "name": "payment_method",
+          "type": "payment_method",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
         "idempotency_key": {
           "name": "idempotency_key",
           "type": "varchar(128)",
@@ -400,7 +407,7 @@
         },
         "transactions_type_consistency": {
           "name": "transactions_type_consistency",
-          "value": "(\n        (\"transactions\".\"type\" = 'opening_balance' AND \"transactions\".\"sender_account_id\" IS NULL)\n        OR\n        (\"transactions\".\"type\" = 'transfer' AND \"transactions\".\"sender_account_id\" IS NOT NULL AND \"transactions\".\"sender_account_id\" <> \"transactions\".\"recipient_account_id\")\n      )"
+          "value": "(\n        (\"transactions\".\"type\" = 'opening_balance' AND \"transactions\".\"sender_account_id\" IS NULL AND \"transactions\".\"payment_method\" IS NULL)\n        OR\n        (\"transactions\".\"type\" = 'transfer' AND \"transactions\".\"sender_account_id\" IS NOT NULL AND \"transactions\".\"sender_account_id\" <> \"transactions\".\"recipient_account_id\" AND \"transactions\".\"payment_method\" IS NULL)\n        OR\n        (\"transactions\".\"type\" = 'deposit' AND \"transactions\".\"sender_account_id\" IS NULL AND \"transactions\".\"recipient_account_id\" IS NOT NULL AND \"transactions\".\"payment_method\" IS NOT NULL)\n      )"
         }
       },
       "isRLSEnabled": false
@@ -498,6 +505,15 @@
     }
   },
   "enums": {
+    "public.payment_method": {
+      "name": "payment_method",
+      "schema": "public",
+      "values": [
+        "upi",
+        "debit_card",
+        "credit_card"
+      ]
+    },
     "public.ledger_entry_type": {
       "name": "ledger_entry_type",
       "schema": "public",
@@ -511,7 +527,8 @@
       "schema": "public",
       "values": [
         "opening_balance",
-        "transfer"
+        "transfer",
+        "deposit"
       ]
     }
   },

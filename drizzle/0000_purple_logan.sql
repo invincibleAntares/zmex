@@ -1,5 +1,6 @@
+CREATE TYPE "public"."payment_method" AS ENUM('upi', 'debit_card', 'credit_card');--> statement-breakpoint
 CREATE TYPE "public"."ledger_entry_type" AS ENUM('credit', 'debit');--> statement-breakpoint
-CREATE TYPE "public"."transaction_type" AS ENUM('opening_balance', 'transfer');--> statement-breakpoint
+CREATE TYPE "public"."transaction_type" AS ENUM('opening_balance', 'transfer', 'deposit');--> statement-breakpoint
 CREATE TABLE "accounts" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
@@ -29,6 +30,7 @@ CREATE TABLE "transactions" (
 	"sender_account_id" uuid,
 	"recipient_account_id" uuid NOT NULL,
 	"amount_paise" bigint NOT NULL,
+	"payment_method" "payment_method",
 	"idempotency_key" varchar(128) NOT NULL,
 	"request_fingerprint" varchar(64) NOT NULL,
 	"note" varchar(255),
@@ -36,9 +38,11 @@ CREATE TABLE "transactions" (
 	CONSTRAINT "transactions_idempotency_key_unique" UNIQUE("idempotency_key"),
 	CONSTRAINT "transactions_amount_positive" CHECK ("transactions"."amount_paise" > 0),
 	CONSTRAINT "transactions_type_consistency" CHECK ((
-        ("transactions"."type" = 'opening_balance' AND "transactions"."sender_account_id" IS NULL)
+        ("transactions"."type" = 'opening_balance' AND "transactions"."sender_account_id" IS NULL AND "transactions"."payment_method" IS NULL)
         OR
-        ("transactions"."type" = 'transfer' AND "transactions"."sender_account_id" IS NOT NULL AND "transactions"."sender_account_id" <> "transactions"."recipient_account_id")
+        ("transactions"."type" = 'transfer' AND "transactions"."sender_account_id" IS NOT NULL AND "transactions"."sender_account_id" <> "transactions"."recipient_account_id" AND "transactions"."payment_method" IS NULL)
+        OR
+        ("transactions"."type" = 'deposit' AND "transactions"."sender_account_id" IS NULL AND "transactions"."recipient_account_id" IS NOT NULL AND "transactions"."payment_method" IS NOT NULL)
       ))
 );
 --> statement-breakpoint

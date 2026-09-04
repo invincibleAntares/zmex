@@ -4,7 +4,7 @@ import type { TransactionHistoryItem } from "@/modules/transactions/transaction.
 
 export function TransactionItem({ tx }: { tx: TransactionHistoryItem }) {
   const isCredit = tx.direction === "credit";
-  
+
   // Format Date (e.g. 04 Sep 2026 · 3:42 PM)
   const dateObj = new Date(tx.createdAt);
   const formattedDate = dateObj.toLocaleDateString("en-IN", {
@@ -19,41 +19,68 @@ export function TransactionItem({ tx }: { tx: TransactionHistoryItem }) {
   });
 
   const isOpening = tx.type === "opening_balance";
-  const title = isOpening 
-    ? "Opening balance" 
-    : tx.counterparty?.name || "Unknown";
-  
-  const subTitle = isOpening
-    ? "Account opened"
-    : isCredit
-    ? "Transfer received"
-    : "Transfer sent";
+  const isDeposit = tx.type === "deposit";
+
+  let title = "Unknown";
+  let subTitle = "";
+
+  if (isOpening) {
+    title = "Opening balance";
+    subTitle = "Account opened";
+  } else if (isDeposit) {
+    const paymentMethodMap: Record<string, string> = {
+      upi: "Deposit via UPI",
+      debit_card: "Deposit via Debit Card",
+      credit_card: "Deposit via Credit Card",
+    };
+    title = paymentMethodMap[tx.paymentMethod ?? ""] || "Deposit";
+    subTitle = "Money added";
+  } else {
+    title = tx.counterparty?.name || "Unknown";
+    subTitle = isCredit ? "Money received" : "Money sent";
+  }
+
+  const avatarText = isOpening
+    ? "ZM"
+    : isDeposit
+    ? "+"
+    : title.charAt(0).toUpperCase();
 
   return (
-    <div className="flex items-center justify-between py-4 border-b border-neutral-100 last:border-0 hover:bg-neutral-50/50 transition-colors px-2 -mx-2 rounded-lg">
-      <div className="flex items-center gap-4">
+    <div className="flex items-center justify-between py-3.5 border-b border-neutral-100 last:border-0 hover:bg-neutral-50/80 transition-colors px-3 -mx-3 rounded-xl gap-3">
+      <div className="flex items-center gap-3.5 min-w-0 flex-1">
         {/* Avatar / Icon */}
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm ${
-          isOpening 
-            ? "bg-black text-white" 
-            : isCredit 
-            ? "bg-green-100 text-green-700" 
-            : "bg-neutral-200 text-neutral-700"
-        }`}>
-          {isOpening ? "ZM" : title.charAt(0).toUpperCase()}
+        <div
+          className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-xs sm:text-sm shadow-xs shrink-0 ${
+            isOpening
+              ? "bg-neutral-900 text-white"
+              : isCredit
+              ? "bg-emerald-100 text-emerald-800"
+              : "bg-neutral-100 text-neutral-800"
+          }`}
+        >
+          {avatarText}
         </div>
 
-        <div>
-          <p className="font-medium text-neutral-900">{title}</p>
-          <div className="flex items-center gap-2 text-sm text-neutral-500">
-            <span>{subTitle}</span>
-            <span>·</span>
-            <span>{formattedDate} {formattedTime}</span>
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-sm sm:text-base text-neutral-900 leading-tight truncate">
+            {title}
+          </p>
+          <div className="flex items-center gap-1.5 text-xs text-neutral-500 mt-0.5 whitespace-nowrap overflow-hidden">
+            <span className="shrink-0">{subTitle}</span>
+            <span className="shrink-0">·</span>
+            <span className="truncate">
+              {formattedDate} {formattedTime}
+            </span>
           </div>
         </div>
       </div>
 
-      <div className={`font-semibold ${isCredit ? "text-green-600" : "text-neutral-900"}`}>
+      <div
+        className={`font-semibold text-sm sm:text-base tracking-tight shrink-0 text-right ml-2 ${
+          isCredit ? "text-emerald-600" : "text-neutral-900"
+        }`}
+      >
         {isCredit ? "+" : "−"} {formatPaiseToRupees(tx.amountPaise)}
       </div>
     </div>

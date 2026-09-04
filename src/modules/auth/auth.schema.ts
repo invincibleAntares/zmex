@@ -35,8 +35,12 @@ export const registerSchema = z
     confirmPassword: z
       .string({ error: "Please confirm your password" }),
 
-    // Optional: defaults to "0" when absent. Validated in superRefine below.
-    initialDeposit: z.string().default("0"),
+    // Optional: defaults to "0" when absent or empty. Validated in superRefine below.
+    initialDeposit: z
+      .string()
+      .optional()
+      .transform((val) => (!val || val.trim() === "" ? "0" : val.trim()))
+      .default("0"),
   })
   .superRefine((data, ctx) => {
     if (data.password !== data.confirmPassword) {
